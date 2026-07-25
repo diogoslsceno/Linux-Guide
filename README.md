@@ -265,3 +265,10 @@ time_format = "%R"
 style = "bg:#061738"
 format = '[[  $time ](fg:#C6D4FF bg:#061738)]($style)'
 ```
+
+
+### Recarregue as configurações
+
+```bash
+source ~/.zshrc
+```
