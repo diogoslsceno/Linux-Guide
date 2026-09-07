@@ -1,274 +1,42 @@
-# Instalação do ZSH + Oh My ZSH + Zinit + Starship em Sistemas Baseados em Debian
+# 🚀 Hub de Guias de Configuração de Ambiente Linux
 
-## 1. Instalar o ZSH
+Este repositório é um hub centralizado de guias passo a passo para configuração de terminal, shell ZSH, ferramentas de desenvolvimento e personalização de ambiente no Linux.
 
-```bash
-sudo apt update
-sudo apt-get install zsh -y
-```
-
-### Verifique a instalação
-
-```bash
-zsh --version
-```
-
-### Defina o ZSH como shell padrão
-
-```bash
-chsh -s $(which zsh)
-```
+Toda a instrução prévia de instalação e configuração foi refatorada, expandida e integrada diretamente dentro dos guias específicos para cada ecossistema de distribuição Linux.
 
 ---
 
-## 2. Instalar o Curl
+## 📚 Guias Disponíveis
 
-```bash
-sudo apt-get install curl -y
-```
-
-### Verifique a instalação
-
-```bash
-curl --version
-```
-
----
-
-## 3. Instalar o Git
-
-```bash
-sudo apt update
-sudo apt-get install git -y
-```
-
-### Verifique a instalação
-
-```bash
-git --version
-```
+### 1. 🐧 [guiaLinuxDebian.md]
+* **Público-Alvo:** Usuários de **Ubuntu, Debian e derivados** (ex: Linux Mint, Pop!_OS).
+* **Objetivo:** Guia completo de referência e configuração do sistema e terminal.
+* **Resumo do Conteúdo:**
+  * **Comandos Úteis de Terminal:** Comandos fundamentais de navegação, permissões, gerenciamento de processos e atalhos.
+  * **Gerenciamento de Pacotes (APT):** Atualização, instalação e manutenção de pacotes do sistema.
+  * **Setup Completo do ZSH:** Passo a passo detalhado para instalação e configuração do ZSH, Oh My Zsh, gerenciador de plugins Zinit, preenchimento autocompletar, autosuggestions e sintaxe destacada.
+  * **Personalização de Prompt e Estética:** Instalação e customização do **Starship Prompt** (`starship.toml`) e **Nerd Fonts** (JetBrains Mono).
+  * **Ferramentas de Desenvolvimento:** Configurações adicionais de utilitários como SDKMAN, Git e VS Code.
 
 ---
 
-## 4. Instalar o Oh My ZSH
-
-```bash
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-```
-
-### Abra o arquivo de configuração do ZSH
-
-```bash
-nano ~/.zshrc
-```
-
-### Recarregue as configurações
-
-```bash
-source ~/.zshrc
-```
+### 2. 🎩 [guiaLinuxFedora.md]
+* **Público-Alvo:** Usuários de **Fedora Linux** e distribuições da família RHEL/RPM.
+* **Objetivo:** Adaptar todos os passos do guia principal para o ecossistema Red Hat/Fedora.
+* **Resumo do Conteúdo:**
+  * **Gerenciamento de Pacotes (DNF):** Equivalentes exatos dos comandos APT utilizando o gerenciador de pacotes `dnf`.
+  * **Setup do ZSH & Plugins:** Instalação do ZSH, Oh My ZSH, Zinit e plugins ajustados às particularidades do Fedora.
+  * **Starship Prompt & Temas:** Configuração de prompt avançado, tratamento de fontes Nerd Fonts e repositórios específicos para Fedora.
+  * **Resolução e Compatibilidade:** Notas de atenção e instruções para instalação de pacotes quando dependentes de repositórios externos no Fedora.
 
 ---
 
-## 5. Instalar Plugins do Oh My ZSH
+## 🛠️ Como Utilizar Este Repositório
 
-### zsh-syntax-highlighting
+1. **Identifique sua distribuição:**
+   * Se você usa Ubuntu, Debian, Linux Mint ou Pop!_OS, consulte o [guiaLinuxDebian.md].
+   * Se você usa Fedora, consulte o [guiaLinuxFedora.md].
 
-```bash
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-```
-
-### zsh-autosuggestions
-
-```bash
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-```
+2. **Siga a ordem do guia escolhido:** Cada arquivo foi estruturado em sequência lógica para que você possa copiar, colar e executar os comandos do início ao fim sem quebrar dependências do sistema.
 
 ---
-
-## 6. Instalar o Zinit
-
-```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh)"
-```
-
----
-
-## 7. Instalar o Starship Prompt
-
-```bash
-curl -sS https://starship.rs/install.sh | sh
-```
-
-### Verifique a instalação
-
-```bash
-starship --version
-```
-
----
-
-## 8. Configurar o ZSH
-
-Abra novamente o arquivo:
-
-```bash
-nano ~/.zshrc
-```
-
-Cole o conteúdo abaixo ao final do arquivo:
-
-```bash
-### Fim do trecho de instalação do Zinit
-
-zinit light zdharma-continuum/fast-syntax-highlighting
-zinit light zsh-users/zsh-autosuggestions
-zinit light zsh-users/zsh-completions
-zinit light zsh-users/zsh-history-substring-search
-zinit light hlissner/zsh-autopair
-zinit light Aloxaf/fzf-tab
-zinit light agkozak/zsh-z
-zinit light zdharma-continuum/history-search-multi-word
-
-### Starship Prompt
-eval "$(starship init zsh)"
-
-### SDKMAN
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-```
-
-### Salvar o arquivo
-
-1. Pressione `Ctrl + O`
-2. Pressione `Enter`
-3. Pressione `Ctrl + X`
-
-### Recarregue as configurações
-
-```bash
-source ~/.zshrc
-```
-
----
-
-# Instalar Nerd Fonts (Opcional)
-
-Esta etapa é opcional e serve para melhorar a aparência do terminal, especialmente ao utilizar temas e ícones.
-
-## 1. Baixar e instalar a fonte
-
-```bash
-sudo apt update
-
-sudo apt-get install wget unzip -y
-
-mkdir -p ~/.local/share/fonts
-cd ~/.local/share/fonts
-
-wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
-
-unzip JetBrainsMono.zip
-
-fc-cache -fv
-```
-
-## 2. Selecionar a fonte no terminal
-
-Abra as configurações do terminal e selecione:
-
-```text
-JetBrainsMono Nerd Font
-```
-
-## 3. Criar a configuração do Starship
-
-Crie a pasta de configuração caso ela não exista:
-
-```bash
-mkdir -p ~/.config
-```
-
-Abra o arquivo:
-
-```bash
-nano ~/.config/starship.toml
-```
-
-ou
-
-```bash
-code ~/.config/starship.toml
-```
-
-## 4. Configurar o tema do Starship
-
-Cole o tema original abaixo ou utilize sua versão personalizada:
-
-```toml
-format = """
-[░▒▓](#021644)\
-[   ](bg:#021644 fg:#E6ECFF)\
-[](bg:#0A2A66 fg:#021644)\
-$directory\
-[](fg:#0A2A66 bg:#0F2F73)\
-$git_branch\
-$git_status\
-[](fg:#0F2F73 bg:#081D4A)\
-$rust\
-$golang\
-$php\
-[](fg:#081D4A bg:#061738)\
-$time\
-[ ](fg:#061738)\
-\n$character"""
-
-[directory]
-style = "fg:#E6ECFF bg:#0A2A66"
-format = "[ $path ]($style)"
-truncation_length = 3
-truncation_symbol = "…/"
-
-[directory.substitutions]
-"Documents" = "󰈙 "
-"Downloads" = " "
-"Music" = " "
-"Pictures" = " "
-
-[git_branch]
-symbol = ""
-style = "bg:#0F2F73"
-format = '[[ $symbol $branch ](fg:#8FB3FF bg:#0F2F73)]($style)'
-
-[git_status]
-style = "bg:#0F2F73"
-format = '[[($all_status$ahead_behind )](fg:#8FB3FF bg:#0F2F73)]($style)'
-
-[rust]
-symbol = ""
-style = "bg:#081D4A"
-format = '[[ $symbol ](fg:#8FB3FF bg:#081D4A)]($style)'
-
-[golang]
-symbol = ""
-style = "bg:#081D4A"
-format = '[[ $symbol ](fg:#8FB3FF bg:#081D4A)]($style)'
-
-[php]
-symbol = ""
-style = "bg:#081D4A"
-format = '[[ $symbol ](fg:#8FB3FF bg:#081D4A)]($style)'
-
-[time]
-disabled = false
-time_format = "%R"
-style = "bg:#061738"
-format = '[[  $time ](fg:#C6D4FF bg:#061738)]($style)'
-```
-
-
-### Recarregue as configurações
-
-```bash
-source ~/.zshrc
-```
