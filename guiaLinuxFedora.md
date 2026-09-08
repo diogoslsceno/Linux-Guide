@@ -1,8 +1,8 @@
-# 🐧 GuiaLinuxFedora
+# 🎩 GuiaLinuxFedora
 
 > Guia pessoal de comandos e configurações para **Fedora Linux**, distribuição mantida pelo projeto Fedora e patrocinada pela Red Hat.
 >
-> ⚠️ **Atenção:** este guia foi adaptado do `guiaLinuxDebian.md`. Comandos específicos de Debian/Ubuntu foram substituídos por equivalentes do Fedora quando há uma alternativa clara. Quando uma instalação depende de repositório externo ou não tem uma alternativa Fedora claramente suportada, isso é indicado no próprio guia.
+> ⚠️ **Atenção:** este guia foi adaptado para o ecossistema Fedora/RPM (`dnf`). Leia cada seção antes de executar comandos com `sudo`, remoção de pacotes ou alteração de configurações.
 
 ---
 
@@ -53,13 +53,10 @@
 
 ## 1.5 🔧 Permissões e proprietário
 
-```bash
-# Adiciona permissão de execução
-chmod +x arquivo.sh
-
-# Altera o proprietário de um arquivo
-sudo chown usuario:usuario arquivo
-```
+| Comando | Função |
+|---|---|
+| `chmod +x arquivo.sh` | Adiciona permissão de execução a um arquivo. |
+| `sudo chown $USER:$USER arquivo` | Altera o proprietário de um arquivo para o usuário e grupo atuais. |
 
 ## 1.6 🖥️ Terminal e sessão
 
@@ -77,7 +74,7 @@ sudo chown usuario:usuario arquivo
 No Fedora, o gerenciador de pacotes principal é o **DNF**.
 
 ```bash
-# Atualiza o sistema
+# Atualiza os metadados e todos os pacotes do sistema
 sudo dnf upgrade --refresh -y
 
 # Instala um pacote
@@ -86,29 +83,29 @@ sudo dnf install nome-do-pacote -y
 # Remove um pacote
 sudo dnf remove nome-do-pacote -y
 
-# Procura um pacote
+# Procura um pacote nos repositórios
 dnf search nome-do-pacote
 
-# Mostra informações de um pacote
+# Mostra informações detalhadas de um pacote
 dnf info nome-do-pacote
 
 # Lista pacotes instalados
 dnf list installed
 
-# Remove dependências que não são mais necessárias
+# Remove dependências não utilizadas
 sudo dnf autoremove -y
 
-# Limpa caches
+# Limpa o cache do DNF
 sudo dnf clean all
 ```
 
 ### 🔄 Reiniciar e desligar
 
 ```bash
-# Reinicia
+# Reinicia o computador
 sudo reboot
 
-# Desliga imediatamente
+# Desliga o computador imediatamente
 sudo shutdown now
 ```
 
@@ -124,7 +121,7 @@ gsettings set org.gnome.mutter dynamic-workspaces false
 # Define 5 áreas de trabalho
 gsettings set org.gnome.desktop.wm.preferences num-workspaces 5
 
-# Verifica a configuração
+# Verifica as configurações
 gsettings get org.gnome.mutter dynamic-workspaces
 gsettings get org.gnome.desktop.wm.preferences num-workspaces
 ```
@@ -139,7 +136,7 @@ gsettings get org.gnome.desktop.wm.preferences num-workspaces
 # Atualiza o sistema
 sudo dnf upgrade --refresh -y
 
-# Ferramentas comuns para downloads, chaves, compilação e Git
+# Instala utilitários de compilação, download, compactação e ferramentas básicas
 sudo dnf install -y \
 curl \
 wget \
@@ -172,58 +169,42 @@ sudo dnf install gnome-extensions-app -y
 # Informações do sistema
 sudo dnf install fastfetch -y
 
-# Backup
+# Backup do sistema
 sudo dnf install timeshift -y
 
-# Efeito inspirado no filme Matrix
+# Efeito Matrix no terminal
 sudo dnf install cmatrix -y
 
 # Visualização de áudio
 sudo dnf install cava -y
 
-# Monitoramento do sistema
+# Monitoramento de processos
 sudo dnf install htop -y
 
-# Gerenciador de discos
+# Gerenciador de partições de disco
 sudo dnf install gparted -y
 ```
-
-> `neofetch` não é necessário no Fedora moderno se você já utiliza `fastfetch`.
 
 ## 2.4 🟢 Node.js e npm
 
 ```bash
-# Instala Node.js e npm
+# Instala Node.js e npm dos repositórios oficiais do Fedora
 sudo dnf install nodejs npm -y
 
-# Verifica as versões
+# Verifica as versões instaladas
 node -v
 npm -v
 ```
 
-### Node.js 22 e ferramentas como Gemini CLI
+## 2.5 🤖 Gemini CLI, Gtop e Antigravity
 
 ```bash
-# Verifica os pacotes disponíveis
-dnf info nodejs
+# Instala o monitor gtop globalmente via npm
+sudo npm install -g gtop
 
-# Depois de garantir uma versão compatível, instale os pacotes
-sudo dnf install nodejs npm -y
-
-# Instala o Gemini CLI
+# Instala o Gemini CLI globalmente
 sudo npm install -g @google/gemini-cli
 
-# Verifica
-node -v
-npm -v
-gemini --version
-```
-
-> O procedimento original utilizava o repositório NodeSource para Ubuntu. No Fedora, prefira primeiro os pacotes e mecanismos de versão disponibilizados pelo próprio Fedora. Se uma ferramenta exigir especificamente Node 22, confira a versão disponível na sua edição do Fedora antes de adicionar um repositório externo.
-
-## 2.5 🤖 Antigravity CLI
-
-```bash
 # Instala o Antigravity CLI
 curl -fsSL https://antigravity.google/cli/install.sh | bash
 
@@ -233,46 +214,47 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 # Recarrega o ZSH
 source ~/.zshrc
 
-# Verifica
+# Verifica as instalações
+node -v
+npm -v
+gemini --version
 agy --version
 ```
 
 ## 2.6 🧑‍💻 Visual Studio Code
 
-### Instalação pelo repositório RPM da Microsoft
+### Instalação pelo repositório RPM oficial da Microsoft
 
 ```bash
-# Importa a chave da Microsoft
+# Importa a chave GPG da Microsoft
 sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
 
-# Adiciona o repositório oficial
+# Adiciona o repositório do VS Code
 sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\nrepo_gpgcheck=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
 
-# Atualiza os metadados
+# Atualiza os metadados do DNF
 sudo dnf check-update
 
 # Instala o VS Code
 sudo dnf install code -y
 
-# Verifica
+# Verifica a versão
 code --version
 ```
 
 ## 2.7 🔀 Meld e Sublime Merge
 
 ```bash
-# Meld
+# Meld (Oficial)
 sudo dnf install meld -y
 ```
 
-> Para o Sublime Merge, prefira o pacote RPM/repositório oficial da Sublime. Como a URL e o método podem mudar, não é recomendado fixar um endereço antigo neste guia.
+> Para o Sublime Merge no Fedora, você pode utilizar o repositório RPM oficial da Sublime ou instalar via Flatpak/tarball.
 
 ## 2.8 🐳 Docker Engine e Docker Compose
 
-> O Fedora utiliza RPM/DNF. O procedimento abaixo usa o repositório oficial do Docker. A documentação atual do Docker recomenda o repositório RPM para o Docker Engine. citeturn0search1
-
 ```bash
-# Remove versões conflitantes, caso existam
+# Remove versões conflitantes antigas caso existam
 sudo dnf remove docker \
 docker-client \
 docker-client-latest \
@@ -282,33 +264,36 @@ docker-latest-logrotate \
 docker-logrotate \
 docker-selinux \
 docker-engine-selinux \
-docker-engine
+docker-engine -y
 
-# Adiciona o repositório oficial do Docker
-sudo dnf config-manager addrepo --from-repofile https://download.docker.com/linux/fedora/docker-ce.repo
+# Instala plugins de gerenciamento do DNF
+sudo dnf install dnf-plugins-core -y
+
+# Adiciona o repositório oficial do Docker para Fedora
+sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
 
 # Instala Docker Engine, CLI, containerd, Buildx e Compose
 sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 
-# Inicia o Docker e configura para iniciar com o sistema
+# Inicia e habilita o serviço do Docker no inicializador
 sudo systemctl enable --now docker
 
-# Verifica
+# Verifica as instalações
 docker --version
 docker compose version
 
-# Testa o Docker
+# Testa a execução do Docker
 sudo docker run hello-world
 
 # Permite executar Docker sem sudo
 sudo usermod -aG docker $USER
 ```
 
-> Depois de adicionar seu usuário ao grupo `docker`, encerre a sessão e entre novamente para que a alteração de grupo seja aplicada.
+> Após adicionar seu usuário ao grupo `docker`, encerre a sessão ou execute `newgrp docker` para aplicar a alteração.
 
 ## 2.9 💬 Discord
 
-> No Fedora, uma opção simples é utilizar o Flatpak.
+No Fedora, a opção mais prática e mantida para o Discord é o **Flatpak** via Flathub.
 
 ```bash
 # Instala o Discord pelo Flathub
@@ -321,45 +306,37 @@ flatpak run com.discordapp.Discord
 ## 2.10 ☕ Java / OpenJDK
 
 ```bash
-# Lista versões disponíveis
-dnf search openjdk
+# Instala a versão LTS do OpenJDK (ex: OpenJDK 21) ou versão mais recente (java-latest-openjdk)
+sudo dnf install java-21-openjdk-devel -y
 
-# Exemplo: instala o OpenJDK disponível no repositório
-sudo dnf install java-latest-openjdk-devel -y
+# Para a versão mais recente disponível:
+# sudo dnf install java-latest-openjdk-devel -y
 
-# Verifica o Java
+# Verifica o Java e o compilador
 java --version
-
-# Verifica o compilador
 javac --version
 
-# Verifica os caminhos
+# Verifica o caminho dos executáveis
 which java
 which javac
-
-# Mostra o caminho real do Java
 readlink -f "$(which java)"
 ```
-
-> Se você precisar de uma versão específica do JDK, como 17, 21 ou 25, consulte primeiro `dnf search openjdk` e instale o pacote correspondente à versão disponível no seu Fedora.
 
 ## 2.11 🐍 Anaconda
 
 ```bash
-# Atualiza o sistema
+# Atualiza o sistema e instala dependências
 sudo dnf upgrade --refresh -y
-
-# Instala dependências
 sudo dnf install -y curl wget bzip2 ca-certificates
 
 # Vai para Downloads
 cd ~/Downloads
 
-# Baixa o instalador
-wget https://repo.anaconda.com/archive/Anaconda3-2026.07-1-Linux-x86_64.sh
+# Baixa o instalador do Anaconda
+wget https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh -O Anaconda3-latest.sh
 
 # Executa o instalador
-bash Anaconda3-2026.07-1-Linux-x86_64.sh
+bash Anaconda3-latest.sh
 
 # Inicializa o Conda para ZSH
 ~/anaconda3/bin/conda init zsh
@@ -367,41 +344,34 @@ bash Anaconda3-2026.07-1-Linux-x86_64.sh
 # Aplica as alterações
 source ~/.zshrc
 
-# Não ativa o ambiente base automaticamente
+# Desativa a inicialização automática do ambiente base
 conda config --set auto_activate_base false
-
-# Remove a configuração adicionada ao Bash
-~/anaconda3/bin/conda init --reverse bash
 
 # Desativa o ambiente base da sessão atual
 conda deactivate
 
-# Verifica
+# Verifica a instalação
 conda --version
 conda info --base
-
-# Verifica o shell
-echo $SHELL
-ps -p $$ -o comm=
 ```
 
 ## 2.12 📦 Flatpak
 
-O Fedora Workstation já possui integração com Flatpak, mas o Flathub pode ser habilitado para ampliar o catálogo.
+O Fedora Workstation já vem com o Flatpak integrado por padrão. Ative o Flathub para acessar todo o repositório:
 
 ```bash
-# Instala Flatpak caso ainda não esteja instalado
+# Instala Flatpak caso não esteja instalado
 sudo dnf install flatpak -y
 
-# Adiciona o Flathub
-flatpak remote-add --if-not-exists flathub \
+# Adiciona o repositório Flathub
+sudo flatpak remote-add --if-not-exists flathub \
 https://flathub.org/repo/flathub.flatpakrepo
 
-# Verifica os repositórios
+# Lista repositórios configurados
 flatpak remotes
 ```
 
-### Apps Flatpak
+### Apps Flatpak recomendados
 
 ```bash
 # Discord
@@ -424,61 +394,29 @@ flatpak install flathub com.jetbrains.PhpStorm -y
 
 # Android Studio
 flatpak install flathub com.google.AndroidStudio -y
-
-# Visual Studio Code
-flatpak install flathub com.visualstudio.code -y
-```
-
-### Comandos úteis do Flatpak
-
-```bash
-# Lista aplicativos instalados
-flatpak list
-
-# Atualiza aplicativos
-flatpak update -y
-
-# Remove um aplicativo
-flatpak uninstall com.jetbrains.IntelliJ-IDEA-Community
 ```
 
 ## 2.13 🎥 OBS Studio
 
-> Para distribuições Linux que não sejam Ubuntu, o próprio projeto OBS recomenda o **Flathub** como método de instalação. citeturn0search5turn0search6
-
 ```bash
-# Instala o OBS Studio pelo Flathub
+# Instala o OBS Studio pelo Flathub (recomendado para Fedora)
 flatpak install flathub com.obsproject.Studio -y
 
-# Abre o OBS
+# Executa o OBS Studio
 flatpak run com.obsproject.Studio
 ```
 
 ## 2.14 🛠️ GRUB Customizer
 
-> ⚠️ O GRUB Customizer altera a configuração do bootloader. No Fedora, ele **não deve ser tratado como um pacote padrão equivalente ao `apt install grub-customizer` do Ubuntu**. A disponibilidade depende de repositórios de terceiros e da versão do Fedora.
->
-> Por segurança, este guia não fixa um repositório de terceiros sem verificar a compatibilidade com a versão instalada.
-
-### Verificar se está disponível nos repositórios habilitados
+> ⚠️ O GRUB Customizer altera as configurações do gerenciador de boot. No Fedora, verifique a disponibilidade nos repositórios habilitados antes de instalar.
 
 ```bash
+# Pesquisa o pacote
 dnf search grub-customizer
-```
 
-Se o pacote aparecer em um repositório confiável e compatível com sua versão:
-
-```bash
+# Se disponível:
 sudo dnf install grub-customizer -y
 ```
-
-Depois:
-
-```bash
-grub-customizer
-```
-
-> 💡 Antes de modificar o GRUB, mantenha um método de recuperação do Fedora disponível. Evite alterar parâmetros de boot sem saber exatamente o efeito.
 
 ## 2.15 🧰 JetBrains Toolbox
 
@@ -491,151 +429,80 @@ wget https://download.jetbrains.com/toolbox/jetbrains-toolbox-2.8.0.51918.tar.gz
 # Extrai
 tar -xzf jetbrains-toolbox-*.tar.gz
 
-# Entra na pasta
+# Entra na pasta e executa
 cd jetbrains-toolbox-*/
-
-# Executa
 ./jetbrains-toolbox
 ```
 
-Pelo Toolbox, você pode instalar:
-
-- IntelliJ IDEA Community
-- PyCharm Community
-- CLion
-- PhpStorm
-
 ## 2.16 📱 Android Studio
 
-### Opção Flatpak
+### Opção Flatpak:
 
 ```bash
 flatpak install flathub com.google.AndroidStudio -y
 ```
 
-Para executar:
-
-```bash
-flatpak run com.google.AndroidStudio
-```
-
-Na primeira inicialização:
-
+Na primeira inicialização, instale:
 - Android SDK
 - Android SDK Command-line Tools
 - Android Emulator
 - Android SDK Platform Tools
 
-> A instalação oficial do Android Studio também pode ser usada. O importante é manter SDK, Gradle, ADB e Emulator consistentes com a forma de instalação escolhida.
-
 ## 2.17 🔧 Git + SSH + GitHub
 
-### Verificar a pasta SSH
+### Criar/configurar uma chave SSH
 
 ```bash
+# Verifica se já existem chaves
 ls -la ~/.ssh
-```
 
-### Criar uma nova chave
-
-```bash
-# Remove uma chave antiga, caso seja realmente necessário
-rm -f ~/.ssh/id_ed25519 ~/.ssh/id_ed25519.pub
-
-# Cria uma nova chave
+# Cria uma nova chave SSH
 ssh-keygen -t ed25519 -C "SEU_EMAIL_REAL"
-```
 
-Quando aparecer o caminho para salvar a chave, pressione `Enter` para aceitar o padrão.
-
-### Iniciar o SSH Agent
-
-```bash
+# Inicia o agente SSH
 eval "$(ssh-agent -s)"
 
-# Adiciona a chave
+# Adiciona a chave ao agente
 ssh-add ~/.ssh/id_ed25519
 
-# Verifica
-ssh-add -l
-```
-
-### Exibir a chave pública
-
-```bash
+# Exibe a chave pública para copiar
 cat ~/.ssh/id_ed25519.pub
 ```
 
 No GitHub:
-
-1. **Settings → SSH and GPG keys → New SSH key**
-2. Escolha um título para identificar o computador.
-3. Selecione `Authentication Key`.
+1. Acesse **Settings → SSH and GPG keys → New SSH key**.
+2. Em **Title**, dê um nome para o computador (ex: `Fedora-Laptop`).
+3. Em **Key type**, marque `Authentication Key`.
 4. Cole o conteúdo de `~/.ssh/id_ed25519.pub`.
 5. Clique em **Add SSH key**.
 
-### Testar
+### Testar a conexão
 
 ```bash
 ssh -T git@github.com
 ```
 
-Resultado esperado:
-
-```text
-Hi SEU_USUARIO! You've successfully authenticated,
-but GitHub does not provide shell access.
-```
-
-### Configurar nome e e-mail
+### Configurar identidade global do Git
 
 ```bash
-git config --global user.name "Diogo Sales"
+git config --global user.name "SEU NOME"
 git config --global user.email "SEU_EMAIL_REAL"
 
-# Verifica
+# Verifica a configuração
 git config --global --list
 ```
 
-### Configurar o remoto SSH
+### Configurar repositório para SSH
 
 ```bash
-# Entra no repositório
 cd CAMINHO/DO/SEU/REPOSITORIO
-
-# Verifica o remoto
-git remote -v
-
-# Troca HTTPS por SSH
 git remote set-url origin git@github.com:USUARIO/REPOSITORIO.git
-
-# Confere
 git remote -v
-```
-
-### Fluxo básico
-
-```bash
-# Verifica alterações
-git status
-
-# Adiciona arquivos
-git add .
-
-# Cria commit
-git commit -m "Atualiza projeto"
-
-# Envia para o GitHub
-git push
 ```
 
 ---
 
 # 3. 🐚 Instalação e configuração do ZSH
-
-> Esta seção consolida a configuração do guia original em uma única versão para Fedora.
->
-> Conjunto utilizado: **ZSH + Oh My Zsh + Zinit + plugins + Starship + Nerd Font (opcional) + SDKMAN**.
 
 ## 3.1 Instalar ZSH
 
@@ -643,22 +510,19 @@ git push
 # Instala o ZSH
 sudo dnf install zsh -y
 
-# Verifica
+# Verifica a versão
 zsh --version
 
 # Define o ZSH como shell padrão
 chsh -s $(which zsh)
 ```
 
-> Depois do `chsh`, pode ser necessário sair da sessão e entrar novamente.
+> Encerre a sessão e faça login novamente para ativar o ZSH.
 
 ## 3.2 Instalar Curl e Git
 
 ```bash
 sudo dnf install curl git -y
-
-curl --version
-git --version
 ```
 
 ## 3.3 Instalar Oh My Zsh
@@ -667,26 +531,14 @@ git --version
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 ```
 
-Abra a configuração:
-
-```bash
-nano ~/.zshrc
-```
-
-Depois:
-
-```bash
-source ~/.zshrc
-```
-
 ## 3.4 Instalar plugins
 
 ```bash
-# Syntax highlighting
+# Syntax Highlighting
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
 ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
-# Sugestões automáticas
+# Autosuggestions
 git clone https://github.com/zsh-users/zsh-autosuggestions \
 ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 ```
@@ -697,15 +549,16 @@ ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh)"
 ```
 
-## 3.6 Instalar Starship
+## 3.6 Instalar Starship Prompt
 
 ```bash
 curl -sS https://starship.rs/install.sh | sh
-
 starship --version
 ```
 
 ## 3.7 Configurar o `~/.zshrc`
+
+Edite o arquivo:
 
 ```bash
 nano ~/.zshrc
@@ -735,53 +588,31 @@ export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 ```
 
-Salve:
-
-1. `Ctrl + O`
-2. `Enter`
-3. `Ctrl + X`
-
-Recarregue:
+Recarrega as configurações:
 
 ```bash
 source ~/.zshrc
 ```
 
-## 3.8 🔤 Nerd Font — opcional
+## 3.8 🔤 Nerd Font (JetBrains Mono)
 
 ```bash
-# Cria a pasta de fontes
 mkdir -p ~/.local/share/fonts
-
-# Entra na pasta
 cd ~/.local/share/fonts
-
-# Baixa a JetBrains Mono Nerd Font
 wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
-
-# Extrai
 unzip JetBrainsMono.zip
-
-# Atualiza o cache
 fc-cache -fv
 ```
 
-Depois, nas configurações do terminal, selecione:
-
-```text
-JetBrainsMono Nerd Font
-```
+Configure o emulador de terminal com a fonte `JetBrainsMono Nerd Font`.
 
 ## 3.9 ⭐ Configurar o Starship
 
+Crie e edite o arquivo `~/.config/starship.toml`:
+
 ```bash
 mkdir -p ~/.config
-
-# Pelo Nano
 nano ~/.config/starship.toml
-
-# Ou pelo VS Code
-code ~/.config/starship.toml
 ```
 
 ### Tema original
@@ -861,7 +692,6 @@ format = """
 [   ](bg:#021644 fg:#E6ECFF)\
 [](bg:#0A2A66 fg:#021644)\
 $directory\
-[](fg:#0A2A66 bg:#0F2F73)\
 $git_branch\
 $git_status\
 [](fg:#0F2F73 bg:#081D4A)\
@@ -923,27 +753,6 @@ format = '[[  $time ](fg:#C6D4FF bg:#061738)]($style)'
 
 ---
 
-# 📌 Observações finais
+## 📌 Observações finais
 
-A principal diferença entre este guia e o guia Debian/Ubuntu é o gerenciamento de pacotes:
-
-| Debian / Ubuntu | Fedora |
-|---|---|
-| `apt` | `dnf` |
-| `.deb` | `.rpm` |
-| `dpkg` | `rpm` |
-| PPA | Repositórios RPM / COPR / repositórios oficiais |
-| Snap / Flatpak | Flatpak é uma opção especialmente útil para apps desktop |
-
-Para uma máquina de desenvolvimento Fedora, uma combinação prática é:
-
-- **DNF** para pacotes do sistema
-- **Flatpak + Flathub** para aplicativos desktop
-- **VS Code via RPM**
-- **Android Studio via Flatpak ou instalação oficial**
-- **JetBrains Toolbox** para IDEs JetBrains
-- **Docker Engine pelo repositório oficial**
-- **ZSH + Oh My Zsh + Zinit + Starship** para o terminal
-- **Git + SSH** para GitHub
-
-> 💡 **Importante:** Fedora é baseado no ecossistema RPM e possui diferenças importantes em relação ao Debian/Ubuntu. Não copie comandos `apt`, `add-apt-repository`, PPAs ou caminhos de `.deb` deste guia Debian para o Fedora.
+Este guia fornece uma base atualizada e robusta para o ambiente **Fedora Linux**, alinhada com as melhores práticas para desenvolvimento de software no ecossistema Red Hat.

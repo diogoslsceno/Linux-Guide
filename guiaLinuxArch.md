@@ -1,8 +1,8 @@
-# 🐧 GuiaLinuxDebian
+# 🏹 GuiaLinuxArch
 
-> Guia pessoal de comandos e configurações para **Ubuntu/Debian**.
+> Guia pessoal de comandos e configurações para **Arch Linux** e suas distribuições derivadas (ex: EndeavourOS, Manjaro, Garuda Linux).
 >
-> ⚠️ **Atenção:** alguns comandos são específicos do Ubuntu/GNOME ou podem variar conforme a versão da distribuição. Leia cada seção antes de executar comandos com `sudo`, remoção de pacotes ou alteração de configurações.
+> ⚠️ **Atenção:** o Arch Linux é uma distribuição *rolling-release*. Sempre execute uma atualização completa do sistema antes de instalar novos pacotes e leia os avisos oficiais do Arch Linux ao atualizar.
 
 ---
 
@@ -69,26 +69,55 @@
 | `man comando` | Mostra o manual de um comando. Ex.: `man ls`. |
 | `source ~/.zshrc` | Recarrega as configurações do ZSH. |
 
-## 1.7 📦 Gerenciamento de pacotes com APT
+## 1.7 📦 Gerenciamento de pacotes com Pacman & AUR (Yay)
+
+No Arch Linux, o gerenciador oficial de pacotes é o **Pacman**. Para pacotes comunitários no **AUR (Arch User Repository)**, utiliza-se um helper como o **Yay** ou **Paru**.
 
 ```bash
-# Atualiza a lista de pacotes disponíveis
-sudo apt update
+# Atualiza os repositórios e todo o sistema (Rolling Release)
+sudo pacman -Syu
 
-# Atualiza os pacotes instalados
-sudo apt upgrade -y
+# Instala um pacote dos repositórios oficiais
+sudo pacman -S nome-do-pacote
 
-# Remove pacotes desnecessários
-sudo apt autoremove -y
+# Remove um pacote e suas dependências não utilizadas
+sudo pacman -Rns nome-do-pacote
 
-# Atualiza o sistema, remove dependências desnecessárias e limpa o cache
-sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove -y && sudo apt autoclean
+# Pesquisa um pacote nos repositórios oficiais
+pacman -Ss nome-do-pacote
 
-# Instala um pacote
-sudo apt install nome-do-pacote -y
+# Mostra informações detalhadas de um pacote
+pacman -Si nome-do-pacote
 
-# Remove um pacote instalado
-sudo apt remove nome-do-pacote -y
+# Lista pacotes instalados explicitamente
+pacman -Qe
+
+# Remove pacotes órfãos (dependências não utilizadas por nenhum app)
+sudo pacman -Rns $(pacman -Qtdq)
+
+# Limpa a cache de pacotes antigos do pacman
+sudo pacman -Sc
+```
+
+### 📦 Instalando e configurando o Helper AUR (Yay)
+
+```bash
+# Instala dependências de compilação
+sudo pacman -S --needed base-devel git -y
+
+# Clona o repositório do yay
+cd ~/Downloads
+git clone https://aur.archlinux.org/yay.git
+
+# Compila e instala o yay
+cd yay
+makepkg -si
+
+# Verifica a instalação
+yay --version
+
+# Atualiza todo o sistema + AUR
+yay -Syu
 ```
 
 ### 🔄 Reiniciar e desligar
@@ -113,10 +142,8 @@ gsettings set org.gnome.mutter dynamic-workspaces false
 # Define 5 áreas de trabalho
 gsettings set org.gnome.desktop.wm.preferences num-workspaces 5
 
-# Verifica a configuração de áreas de trabalho dinâmicas
+# Verifica a configuração
 gsettings get org.gnome.mutter dynamic-workspaces
-
-# Verifica a quantidade de áreas de trabalho
 gsettings get org.gnome.desktop.wm.preferences num-workspaces
 ```
 
@@ -126,88 +153,68 @@ gsettings get org.gnome.desktop.wm.preferences num-workspaces
 
 ## 2.1 🧰 Dependências básicas
 
-Essas dependências são usadas para evitar problemas comuns com certificados, downloads, repositórios e pacotes.
-
 ```bash
-sudo apt update && sudo apt install -y \
+sudo pacman -S --needed \
 curl \
 wget \
 git \
+base-devel \
 ca-certificates \
 gnupg \
-software-properties-common \
-apt-transport-https
+tar \
+unzip \
+python
 ```
 
 ## 2.2 🌳 Tree
 
 ```bash
-sudo apt install tree -y
+sudo pacman -S tree --noconfirm
 ```
 
 ## 2.3 🖥️ Ferramentas do sistema
 
 ```bash
 # Personalização do GNOME
-sudo apt install gnome-tweaks -y
+sudo pacman -S gnome-tweaks --noconfirm
 
 # Integração de extensões do GNOME com navegador
-sudo apt install chrome-gnome-shell -y
+sudo pacman -S gnome-browser-connector --noconfirm
 
 # Gerenciador de extensões do GNOME
-sudo apt install gnome-shell-extension-manager -y
+sudo pacman -S extension-manager --noconfirm
 
 # Informações do sistema
-sudo apt install fastfetch -y
+sudo pacman -S fastfetch --noconfirm
 
-# Backup
-sudo apt install timeshift -y
+# Backup do sistema
+sudo pacman -S timeshift --noconfirm
 
-# Efeito inspirado no filme Matrix
-sudo apt install cmatrix -y
+# Efeito Matrix no terminal
+sudo pacman -S cmatrix --noconfirm
 
-# Visualização de áudio
-sudo apt install cava -y
+# Visualizador de áudio
+sudo pacman -S cava --noconfirm
 
-# Monitoramento do sistema
-sudo apt install htop -y
+# Monitoramento de processos
+sudo pacman -S htop --noconfirm
 
-# Gerenciador de discos
-sudo apt install gparted -y
+# Gerenciador de partições
+sudo pacman -S gparted --noconfirm
 ```
-
-> 💡 Nota: O `neofetch` foi descontinuado na maioria dos repositórios Debian/Ubuntu mais recentes, sendo recomendado utilizar o `fastfetch`.
 
 ## 2.4 🟢 Node.js e npm
 
-### Opção 1: Via repositórios oficiais da distribuição
-
 ```bash
-# Instala Node.js e npm pelos pacotes padrão do APT
-sudo apt install nodejs npm -y
+# Instala Node.js e npm dos repositórios oficiais do Arch
+sudo pacman -S nodejs npm --noconfirm
 
 # Verifica as versões instaladas
 node -v
 npm -v
 ```
 
-### Opção 2: Via NodeSource (Versão LTS / v22)
-
-```bash
-# Configura o repositório do Node.js 22 LTS
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-
-# Instala o Node.js 22 e npm
-sudo apt install -y nodejs
-
-# Verifica a versão
-node -v
-npm -v
-```
-
 ## 2.5 🤖 Gemini CLI, Gtop e Antigravity
-
-> ⚠️ Certifique-se de que o Node.js e o npm estão instalados (Seção 2.4) antes de executar os comandos `npm`.
 
 ```bash
 # Instala o monitor gtop globalmente via npm
@@ -222,7 +229,7 @@ curl -fsSL https://antigravity.google/cli/install.sh | bash
 # Adiciona os binários locais ao PATH do ZSH
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 
-# Recarrega a sessão do shell
+# Recarrega o ZSH
 source ~/.zshrc
 
 # Verifica as instalações
@@ -234,175 +241,93 @@ agy --version
 
 ## 2.6 🧑‍💻 Visual Studio Code
 
-### Opção recomendada: pacote `.deb` oficial
+### Opção 1: Code - OSS (Repositório Oficial Arch)
 
 ```bash
-cd ~/Downloads
+sudo pacman -S code --noconfirm
+```
 
-# Baixa a versão estável para Linux Debian/Ubuntu
-wget -O code.deb \
-"https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
+### Opção 2: Visual Studio Code Oficial (Proprietário via AUR)
 
-# Instala o pacote
-sudo apt install ./code.deb -y
+```bash
+# Instala o binário oficial da Microsoft via yay
+yay -S visual-studio-code-bin --noconfirm
 
 # Verifica a instalação
 code --version
 ```
 
-### Alternativa: Snap
-
-```bash
-sudo snap install --classic code
-```
-
 ## 2.7 🔀 Meld e Sublime Merge
 
 ```bash
-# Meld
-sudo apt install meld -y
+# Meld (Oficial)
+sudo pacman -S meld --noconfirm
 
-# Sublime Merge (via Snap)
-sudo snap install sublime-merge --classic
+# Sublime Merge (via AUR)
+yay -S sublime-merge --noconfirm
 ```
 
 ## 2.8 🐳 Docker e Docker Compose
 
-### Para Ubuntu:
-
 ```bash
-# Remove instalações antigas/conflitantes
-sudo apt remove $(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc docker-buildx podman-docker containerd runc 2>/dev/null | cut -f1)
+# Instala Docker e Docker Compose dos repositórios oficiais
+sudo pacman -S docker docker-compose --noconfirm
 
-# Atualiza os pacotes
-sudo apt update
+# Inicia e habilita o serviço do Docker no inicializador do sistema
+sudo systemctl enable --now docker.service
 
-# Instala dependências
-sudo apt install ca-certificates curl gnupg
-
-# Cria o diretório das chaves
-sudo install -m 0755 -d /etc/apt/keyrings
-
-# Adiciona a chave GPG oficial do Docker
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-# Adiciona o repositório do Docker para Ubuntu
-sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
-Types: deb
-URIs: https://download.docker.com/linux/ubuntu
-Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
-Components: stable
-Architectures: $(dpkg --print-architecture)
-Signed-By: /etc/apt/keyrings/docker.asc
-EOF
-
-# Atualiza a lista de pacotes
-sudo apt update
-
-# Instala Docker Engine, CLI, containerd, Buildx e Compose
-sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
-
-# Inicia e habilita o serviço do Docker
-sudo systemctl enable --now docker
-
-# Verifica o Docker e Compose
+# Verifica a versão
 docker --version
 docker compose version
 
-# Permite executar Docker sem sudo
+# Testa a execução do Docker
+sudo docker run hello-world
+
+# Permite executar Docker sem necessidade de sudo
 sudo usermod -aG docker $USER
 ```
 
-### Para Debian puro:
-
-```bash
-# Para Debian, substitua a URL do repositório por debian:
-sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
-Types: deb
-URIs: https://download.docker.com/linux/debian
-Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
-Components: stable
-Architectures: $(dpkg --print-architecture)
-Signed-By: /etc/apt/keyrings/docker.asc
-EOF
-
-sudo apt update && sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
-sudo systemctl enable --now docker
-sudo usermod -aG docker $USER
-```
-
-> Depois de adicionar o usuário ao grupo `docker`, encerre a sessão ou execute `newgrp docker` para a alteração entrar em vigor.
+> Após adicionar seu usuário ao grupo `docker`, encerre a sessão do usuário ou rode `newgrp docker` para aplicar o grupo.
 
 ## 2.9 💬 Discord
 
+No Arch Linux, o Discord está disponível diretamente no repositório oficial.
+
 ```bash
-cd ~/Downloads
+# Instala o Discord oficial
+sudo pacman -S discord --noconfirm
 
-# Baixa o pacote .deb do Discord
-wget 'https://discord.com/api/download?platform=linux&format=deb' -O discord.deb
-
-# Confere o arquivo baixado
-ls -lh discord.deb
-
-# Instala o Discord
-sudo apt install ./discord.deb -y
-
-# Verifica o executável
-which discord
-
-# Verifica a versão
+# Verifica a instalação
 discord --version
 ```
 
 ## 2.10 ☕ Java / OpenJDK
 
+No Arch Linux, o Java é gerenciado facilmente via `archlinux-java`.
+
 ```bash
-# Atualiza a lista de pacotes
-sudo apt update
+# Instala o OpenJDK 21 LTS (ou jdk-openjdk para a versão mais recente)
+sudo pacman -S jdk21-openjdk --noconfirm
 
-# Instala a versão LTS do OpenJDK (ex: OpenJDK 21) ou OpenJDK 25 se disponível
-sudo apt install -y openjdk-21-jdk openjdk-21-jre
+# Verifica todas as versões de Java instaladas no sistema
+archlinux-java status
 
-# Para versão mais recente (OpenJDK 25) quando disponível no repositório:
-# sudo apt install -y openjdk-25-jdk
+# Define o Java 21 como a versão padrão do sistema
+sudo archlinux-java set java-21-openjdk
 
-# Verifica o Java
+# Verifica o runtime e o compilador
 java --version
-
-# Verifica o compilador
 javac --version
-
-# Escolhe/verifica o Java padrão
-sudo update-alternatives --config java
-
-# Escolhe/verifica o compilador padrão
-sudo update-alternatives --config javac
-
-# Verifica os caminhos dos executáveis
-which java
-which javac
-
-# Verifica o caminho real do Java
-readlink -f "$(which java)"
 ```
 
 ## 2.11 🐍 Anaconda
 
 ```bash
 # Atualiza o sistema
-sudo apt update && sudo apt upgrade -y
-
-# Instala dependências
-sudo apt install -y curl wget bzip2 ca-certificates
-
-# Vai para Downloads
-cd ~/Downloads
+sudo pacman -Syu
 
 # Baixa o instalador do Anaconda
+cd ~/Downloads
 wget https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh -O Anaconda3-latest.sh
 
 # Executa o instalador
@@ -411,14 +336,11 @@ bash Anaconda3-latest.sh
 # Inicializa o Conda para ZSH
 ~/anaconda3/bin/conda init zsh
 
-# Aplica as alterações
+# Aplica as alterações no terminal
 source ~/.zshrc
 
 # Desativa a inicialização automática do ambiente base
 conda config --set auto_activate_base false
-
-# Remove a configuração do Conda adicionada ao Bash se preferir apenas no ZSH
-~/anaconda3/bin/conda init --reverse bash
 
 # Desativa o ambiente base da sessão atual
 conda deactivate
@@ -432,20 +354,17 @@ conda info --base
 
 ```bash
 # Instala o Flatpak
-sudo apt install flatpak -y
-
-# Integra o Flatpak ao GNOME Software
-sudo apt install gnome-software-plugin-flatpak -y
+sudo pacman -S flatpak --noconfirm
 
 # Adiciona o repositório Flathub
 sudo flatpak remote-add --if-not-exists flathub \
 https://flathub.org/repo/flathub.flatpakrepo
 
-# Verifica os repositórios Flatpak
+# Verifica os repositórios ativados
 flatpak remotes
 ```
 
-### Apps Flatpak recomendados
+### Apps Flatpak (Opcional)
 
 ```bash
 # IntelliJ IDEA Community
@@ -462,50 +381,19 @@ flatpak install flathub com.jetbrains.PhpStorm -y
 
 # Android Studio
 flatpak install flathub com.google.AndroidStudio -y
-
-# Visual Studio Code
-flatpak install flathub com.visualstudio.code -y
-```
-
-### Permissões para IDEs via Flatpak
-
-```bash
-# VS Code
-flatpak override --user --filesystem=host com.visualstudio.code
-flatpak override --user --device=all com.visualstudio.code
-
-# Android Studio
-flatpak override --user --filesystem=host com.google.AndroidStudio
-flatpak override --user --device=all com.google.AndroidStudio
-
-# IDEs JetBrains
-flatpak override --user --filesystem=host com.jetbrains.IntelliJ-IDEA-Community
-flatpak override --user --filesystem=host com.jetbrains.PyCharm-Community
-flatpak override --user --filesystem=host com.jetbrains.CLion
-flatpak override --user --filesystem=host com.jetbrains.PhpStorm
-
-flatpak override --user --device=all com.jetbrains.IntelliJ-IDEA-Community
-flatpak override --user --device=all com.jetbrains.PyCharm-Community
-flatpak override --user --device=all com.jetbrains.CLion
-flatpak override --user --device=all com.jetbrains.PhpStorm
-```
-
-### Comandos úteis do Flatpak
-
-```bash
-# Lista os aplicativos instalados
-flatpak list
-
-# Atualiza os aplicativos
-flatpak update -y
-
-# Remove um aplicativo
-flatpak uninstall com.jetbrains.IntelliJ-IDEA-Community
 ```
 
 ## 2.13 🧰 JetBrains Toolbox
 
-> O JetBrains Toolbox é a forma recomendada de instalar e gerenciar IDEs JetBrains de forma centralizada.
+No Arch Linux, você pode instalar o JetBrains Toolbox diretamente via AUR ou pelo site oficial.
+
+### Opção 1: Via AUR (Yay)
+
+```bash
+yay -S jetbrains-toolbox --noconfirm
+```
+
+### Opção 2: Download Oficial
 
 ```bash
 cd ~/Downloads
@@ -513,17 +401,15 @@ cd ~/Downloads
 # Baixa o JetBrains Toolbox
 wget https://download.jetbrains.com/toolbox/jetbrains-toolbox-2.8.0.51918.tar.gz
 
-# Extrai
+# Extrai o arquivo
 tar -xzf jetbrains-toolbox-*.tar.gz
 
-# Entra na pasta extraída
+# Entra no diretório e executa
 cd jetbrains-toolbox-*/
-
-# Executa o Toolbox
 ./jetbrains-toolbox
 ```
 
-Pelo Toolbox, é recomendado instalar:
+Pelo Toolbox, você pode instalar e gerenciar com facilidade:
 - IntelliJ IDEA Community
 - PyCharm Community
 - CLion
@@ -531,25 +417,31 @@ Pelo Toolbox, é recomendado instalar:
 
 ## 2.14 📱 Android Studio
 
+### Opção 1: Via AUR (Recomendado no Arch)
+
+```bash
+yay -S android-studio --noconfirm
+```
+
+### Opção 2: Download Oficial Tarball
+
 ```bash
 cd ~/Downloads
 
-# Baixa o Android Studio
+# Baixa a versão oficial
 wget -O android-studio.tar.gz \
 https://redirector.gvt1.com/edgedl/android/studio/install/current/android-studio-*.tar.gz
 
 # Cria a pasta de instalação
 sudo mkdir -p /opt/android-studio
 
-# Extrai para /opt
-sudo tar -xzf android-studio.tar.gz \
--C /opt/android-studio \
---strip-components=1
+# Extrai em /opt
+sudo tar -xzf android-studio.tar.gz -C /opt/android-studio --strip-components=1
 
-# Cria um link simbólico global
+# Cria o link simbólico global
 sudo ln -sf /opt/android-studio/bin/studio /usr/local/bin/android-studio
 
-# Abre o Android Studio
+# Executa
 android-studio
 ```
 
@@ -562,35 +454,22 @@ Na primeira inicialização, certifique-se de marcar e instalar:
 ## 2.15 🎥 OBS Studio
 
 ```bash
-# Atualiza a lista de pacotes
-sudo apt update
+# Instala o OBS Studio dos repositórios oficiais do Arch
+sudo pacman -S obs-studio --noconfirm
 
-# Instala o OBS Studio
-sudo apt install obs-studio -y
-
-# Verifica a instalação
+# Verifica a versão
 obs --version
-```
-
-Para abrir:
-```bash
-obs
 ```
 
 ## 2.16 🛠️ GRUB Customizer
 
-> ⚠️ O GRUB Customizer altera a configuração do bootloader. Use com cuidado e mantenha uma forma de recuperação do sistema caso alguma alteração impeça o sistema de iniciar.
+> ⚠️ O GRUB Customizer altera a configuração do bootloader. No Arch Linux, recomenda-se cautela pois atualizações do GRUB podem conflitar com customizações manuais.
 
 ```bash
-# Atualiza a lista de pacotes
-sudo apt update
+# Instala via AUR
+yay -S grub-customizer --noconfirm
 
-# Instala o GRUB Customizer
-sudo apt install grub-customizer -y
-```
-
-Para abrir:
-```bash
+# Executa
 grub-customizer
 ```
 
@@ -599,13 +478,10 @@ grub-customizer
 ### Criar/configurar uma chave SSH
 
 ```bash
-# Verifica a pasta SSH
+# Verifica se já existem chaves
 ls -la ~/.ssh
 
-# Remove a chave antiga, caso necessário
-rm -f ~/.ssh/id_ed25519 ~/.ssh/id_ed25519.pub
-
-# Cria uma nova chave (substitua pelo e-mail associado ao GitHub)
+# Cria uma nova chave SSH ed25519
 ssh-keygen -t ed25519 -C "SEU_EMAIL_REAL"
 
 # Inicia o SSH Agent
@@ -614,33 +490,24 @@ eval "$(ssh-agent -s)"
 # Adiciona a chave ao agente
 ssh-add ~/.ssh/id_ed25519
 
-# Verifica a chave adicionada
-ssh-add -l
-
 # Exibe a chave pública para copiar
 cat ~/.ssh/id_ed25519.pub
 ```
 
 No GitHub:
 1. Acesse **Settings → SSH and GPG keys → New SSH key**.
-2. Em **Title**, informe um nome para identificar a máquina (ex: `Debian-Laptop`).
-3. Em **Key type**, selecione `Authentication Key`.
-4. Cole o conteúdo de `~/.ssh/id_ed25519.pub`.
-5. Clique em **Add SSH key**.
+2. Em **Title**, dê um nome para o computador (ex: `Arch-Desktop`).
+3. Em **Key type**, marque `Authentication Key`.
+4. Cole a chave pública exata exibida pelo comando `cat ~/.ssh/id_ed25519.pub`.
+5. Salve em **Add SSH key**.
 
-### Testar a conexão
+### Testar a conexão com o GitHub
 
 ```bash
 ssh -T git@github.com
 ```
 
-Resultado esperado:
-```text
-Hi SEU_USUARIO! You've successfully authenticated,
-but GitHub does not provide shell access.
-```
-
-### Configurar identidade do Git
+### Configurar identidade global do Git
 
 ```bash
 git config --global user.name "SEU NOME"
@@ -650,38 +517,6 @@ git config --global user.email "SEU_EMAIL_REAL"
 git config --global --list
 ```
 
-### Configurar um repositório para usar SSH
-
-```bash
-# Entre na pasta do repositório
-cd CAMINHO/DO/SEU/REPOSITORIO
-
-# Verifica o endereço remoto atual
-git remote -v
-
-# Troca HTTPS por SSH (substitua pelo endereço do seu repositório)
-git remote set-url origin git@github.com:USUARIO/REPOSITORIO.git
-
-# Confere novamente
-git remote -v
-```
-
-### Fluxo básico para enviar alterações
-
-```bash
-# Verifica o estado do repositório
-git status
-
-# Adiciona alterações
-git add .
-
-# Cria um commit
-git commit -m "Atualiza projeto"
-
-# Envia para o remoto
-git push
-```
-
 ---
 
 # 3. 🐚 Instalação e configuração do ZSH
@@ -689,48 +524,38 @@ git push
 ## 3.1 Instalar ZSH
 
 ```bash
-# Instala o ZSH
-sudo apt install zsh -y
+# Instala ZSH e zsh-completions
+sudo pacman -S zsh zsh-completions --noconfirm
 
-# Verifica a versão
+# Verifica a versão instalada
 zsh --version
 
-# Define o ZSH como shell padrão
+# Define o ZSH como shell padrão do usuário
 chsh -s $(which zsh)
 ```
 
-> Após `chsh`, encerre a sessão do usuário e faça login novamente para ativar o ZSH como shell padrão.
+> Faça logout e login novamente para aplicar a alteração do shell padrão.
 
 ## 3.2 Instalar Curl e Git
 
 ```bash
-sudo apt install curl git -y
-
-curl --version
-git --version
+sudo pacman -S curl git --noconfirm
 ```
 
 ## 3.3 Instalar Oh My Zsh
 
 ```bash
-# Instala o Oh My Zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-# Abre a configuração do ZSH
-nano ~/.zshrc
-
-# Recarrega as configurações
-source ~/.zshrc
 ```
 
 ## 3.4 Instalar plugins
 
 ```bash
-# Syntax highlighting
+# Syntax Highlighting
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
 ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
-# Sugestões automáticas
+# Autosuggestions
 git clone https://github.com/zsh-users/zsh-autosuggestions \
 ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 ```
@@ -741,25 +566,25 @@ ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh)"
 ```
 
-## 3.6 Instalar Starship
+## 3.6 Instalar Starship Prompt
 
 ```bash
-# Instala o Starship Prompt
+# Instala o Starship
 curl -sS https://starship.rs/install.sh | sh
 
-# Verifica a instalação
+# Verifica a versão
 starship --version
 ```
 
 ## 3.7 Configurar o `~/.zshrc`
 
-Abra o arquivo:
+Edite o arquivo `~/.zshrc`:
 
 ```bash
 nano ~/.zshrc
 ```
 
-Adicione ao final do arquivo:
+Adicione ao final:
 
 ```zsh
 ### Plugins via Zinit
@@ -783,38 +608,37 @@ export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 ```
 
-Salve no Nano: `Ctrl + O` → `Enter` → `Ctrl + X`.
-
 Recarrega as configurações:
 
 ```bash
 source ~/.zshrc
 ```
 
-## 3.8 🔤 Nerd Font — opcional
+## 3.8 🔤 Nerd Font (JetBrains Mono)
+
+No Arch Linux, você pode instalar as Nerd Fonts via Pacman ou manualmente.
+
+### Opção via Pacman:
 
 ```bash
-# Cria a pasta de fontes do usuário
+sudo pacman -S ttf-jetbrains-mono-nerd --noconfirm
+```
+
+### Opção manual:
+
+```bash
 mkdir -p ~/.local/share/fonts
-
-# Entra na pasta
 cd ~/.local/share/fonts
-
-# Baixa a JetBrains Mono Nerd Font
 wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
-
-# Extrai
 unzip JetBrainsMono.zip
-
-# Atualiza o cache de fontes
 fc-cache -fv
 ```
 
-Nas configurações do terminal (ex: Gnome Terminal, Ptyxis, Tilix), selecione a fonte `JetBrainsMono Nerd Font`.
+Após instalar, configure o seu emulador de terminal para usar a fonte `JetBrainsMono Nerd Font`.
 
 ## 3.9 ⭐ Configurar o Starship
 
-Crie a pasta de configuração e o arquivo:
+Crie o arquivo de configuração do Starship:
 
 ```bash
 mkdir -p ~/.config
@@ -962,6 +786,6 @@ format = '[[  $time ](fg:#C6D4FF bg:#061738)]($style)'
 
 ## 📌 Observações finais
 
-Este guia fornece uma base robusta e atualizada para gerenciar e preparar máquinas baseadas no ecossistema **Debian/Ubuntu** para desenvolvimento de software de alta produtividade.
+Este guia fornece todo o ecossistema necessário para uma instalação moderna, limpa e produtiva no **Arch Linux**. Aproveite a flexibilidade do Pacman e do AUR para gerenciar seu ambiente de desenvolvimento.
 
-> 💡 **Dica:** Realize as instalações sequencialmente por seções para validar as dependências de sistema antes dos frameworks.
+> 💡 **Dica:** Sempre consulte a página principal da [ArchWiki](https://wiki.archlinux.org/) para detalhes avançados de hardware ou personalização do sistema.

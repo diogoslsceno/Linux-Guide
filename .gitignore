@@ -1,0 +1,33 @@
+# System files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.log
+*.tmp
+
+# Editors and IDEs
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Downloads & Binaries
+Downloads/
+*.deb
+*.rpm
+*.pkg.tar.zst
+*.tar.gz
+*.zip
+*.iso
+
+# Local environment & Node / Python artifacts
+.env
+node_modules/
+__pycache__/
+.venv/
+env/
+venv/
