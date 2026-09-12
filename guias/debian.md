@@ -965,3 +965,322 @@ format = '[[  $time ](fg:#C6D4FF bg:#061738)]($style)'
 Este guia fornece uma base robusta e atualizada para gerenciar e preparar máquinas baseadas no ecossistema **Debian/Ubuntu** para desenvolvimento de software de alta produtividade.
 
 > 💡 **Dica:** Realize as instalações sequencialmente por seções para validar as dependências de sistema antes dos frameworks.
+
+---
+
+# 4. 🎨 Guia Completo — GRUB + Tema Vimix (Ubuntu / Debian)
+
+> **Ambiente de Referência:** Ubuntu 26.04.1 LTS / Debian e derivados.
+
+> [!WARNING]
+> **Aviso Importante & Gestão de Risco:**
+> Esta seção de customização do GRUB e instalação do tema Vimix **não é estritamente necessária** para o funcionamento do sistema operacional ou para a configuração do ambiente de desenvolvimento. Trata-se de uma alteração estética e de organização avançada do bootloader.
+> 
+> **Riscos envolvidos:**
+> - **Incapacidade de Inicialização (*Boot Loop* / Tela Preta):** Editar scripts em `/etc/grub.d/` (como o `10_linux`) ou alterar parâmetros como `GRUB_GFXMODE` pode impedir o carregamento do menu gráfico ou do próprio kernel.
+> - **Perda de Opções de Recuperação (*Recovery Mode*):** A remoção de submenus de kernels adicionais e do *Recovery Mode* elimina as vias padrão de contingência do sistema caso ocorra uma falha após atualização de drivers de vídeo ou do kernel.
+> - **Acesso Restrito ao Firmware:** Desabilitar a entrada `30_uefi-firmware` remove o atalho para as configurações de BIOS/UEFI diretamente pelo menu do GRUB.
+> - **Remoção Incorreta de Kernels:** Purgar pacotes de kernel ativos sem verificar a versão em uso (`uname -r`) pode deixar a máquina sem um kernel funcional.
+> 
+> 💡 **Recomendação:** Crie o backup recomendado (Passo 1), execute todas as verificações antes do *reboot* e tenha um pendrive de boot (*Live USB*) à mão para eventuais recuperações via `chroot`.
+
+---
+
+### 1. Criar backup do GRUB
+
+```bash
+mkdir -p ~/backup-grub
+
+sudo cp -a /etc/default/grub ~/backup-grub/grub
+sudo cp -a /boot/grub/grub.cfg ~/backup-grub/grub.cfg
+sudo cp -a /etc/grub.d ~/backup-grub/grub.d
+```
+
+### 2. Verificar o backup
+
+```bash
+ls -lah ~/backup-grub
+```
+
+### 3. Atualizar o GRUB antes da instalação do tema
+
+```bash
+sudo update-grub
+```
+
+### 4. Verificar se o Windows está sendo detectado
+
+```bash
+sudo grep -i "windows" /boot/grub/grub.cfg
+```
+
+### 5. Ir para o diretório do tema
+
+```bash
+cd ~/Documentos/codes/grub2-themes
+```
+
+### 6. Verificar o repositório
+
+```bash
+git status
+git remote -v
+```
+
+### 7. Verificar as opções do instalador
+
+```bash
+./install.sh --help
+```
+
+### 8. Instalar o ImageMagick
+> Necessário para o processamento das imagens do tema.
+
+```bash
+sudo apt update
+sudo apt install -y imagemagick
+```
+
+### 9. Confirmar a instalação do ImageMagick
+
+```bash
+magick --version
+```
+
+### 10. Verificar a pasta de temas
+
+```bash
+ls -lah /usr/share/grub/themes
+```
+
+### 11. Instalar o Tema Vimix
+> **Opções utilizadas:** `vimix` (tema escolhido), `color` (ícones coloridos), `1080p` (resolução).
+
+```bash
+sudo ./install.sh -t vimix -i color -s 1080p
+```
+
+### 12. Confirmar a configuração criada pelo tema
+
+```bash
+grep -E '^(GRUB_DEFAULT|GRUB_TIMEOUT_STYLE|GRUB_TIMEOUT|GRUB_THEME|GRUB_GFXMODE|GRUB_CMDLINE_LINUX_DEFAULT|GRUB_CMDLINE_LINUX)=' /etc/default/grub
+```
+
+### 13. Verificar os arquivos do Tema Vimix
+
+```bash
+ls -lah /usr/share/grub/themes/vimix
+```
+
+### 14. Criar backup específico do `10_linux`
+> Esse arquivo será modificado para remover submenus, kernels adicionais e Recovery Mode.
+
+```bash
+sudo cp -a /etc/grub.d/10_linux /etc/grub.d/10_linux.vimix-backup
+```
+
+### 15. Impedir que o backup seja executado pelo GRUB
+> Arquivos executáveis em `/etc/grub.d` são processados pelo `grub-mkconfig`. O backup deve permanecer apenas como cópia de segurança.
+
+```bash
+sudo chmod -x /etc/grub.d/10_linux.vimix-backup
+```
+
+### 16. Confirmar as permissões dos scripts
+
+```bash
+ls -l /etc/grub.d/10_linux*
+
+# Resultado esperado:
+# -rwxr-xr-x ... /etc/grub.d/10_linux
+# -rw-r--r-- ... /etc/grub.d/10_linux.vimix-backup
+```
+
+### 17. Editar o `10_linux`
+> Alteração feita: manter somente a primeira versão do kernel como entrada principal "Ubuntu". Isso elimina entradas secundárias e submenus.
+
+```bash
+sudo vim /etc/grub.d/10_linux
+```
+
+### 18. Alteração no final do `/etc/grub.d/10_linux`
+O bloco original que criava o submenu e Recovery Mode foi substituído por:
+
+```bash
+if [ "x$is_top_level" = xtrue ]; then
+  linux_entry "${OS}" "${version}" simple \
+              "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}"
+  is_top_level=false
+fi
+
+done
+
+echo "$title_correction_code"
+```
+
+### 19. Confirmar o final do `10_linux`
+
+```bash
+tail -n 30 /etc/grub.d/10_linux
+```
+
+### 20. Remover Memtest86+ do menu
+
+```bash
+sudo vim /etc/default/grub
+```
+
+Adicionar/manter a linha:
+```env
+GRUB_DISABLE_MEMTEST=true
+```
+
+### 21. Desabilitar "UEFI Firmware Settings"
+> O arquivo continua existindo, mas deixa de ser executável.
+
+```bash
+sudo chmod -x /etc/grub.d/30_uefi-firmware
+```
+
+### 22. Confirmar que UEFI Firmware Settings está desabilitado
+
+```bash
+ls -l /etc/grub.d/30_uefi-firmware
+
+# Deve aparecer sem "x" nas permissões:
+# -rw-r--r--
+```
+
+### 23. Verificar os parâmetros finais do GRUB
+
+```bash
+grep -E '^(GRUB_DEFAULT|GRUB_TIMEOUT_STYLE|GRUB_TIMEOUT|GRUB_DISABLE_MEMTEST|GRUB_THEME|GRUB_GFXMODE|GRUB_CMDLINE_LINUX_DEFAULT|GRUB_CMDLINE_LINUX)=' /etc/default/grub
+
+# Configuração esperada:
+# GRUB_DEFAULT=0
+# GRUB_TIMEOUT_STYLE=menu
+# GRUB_TIMEOUT=30
+# GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+# GRUB_CMDLINE_LINUX=""
+# GRUB_DISABLE_MEMTEST=true
+# GRUB_GFXMODE=1920x1080,auto
+# GRUB_THEME="/usr/share/grub/themes/vimix/theme.txt"
+```
+
+### 24. Verificar o kernel atual
+
+```bash
+uname -r
+# Exemplo retornado: 7.0.0-31-generic
+```
+
+### 25. Verificar os kernels instalados
+
+```bash
+dpkg -l | grep -E 'linux-image|linux-headers' | grep -E '7\.0\.0'
+```
+
+### 26. Remover o kernel antigo
+> ⚠️ **ATENÇÃO:** Executar somente se o sistema estiver funcionando normalmente com o kernel atual.
+
+```bash
+sudo apt purge \
+linux-image-7.0.0-30-generic \
+linux-headers-7.0.0-30 \
+linux-headers-7.0.0-30-generic
+```
+
+### 27. Remover pacotes restantes do kernel antigo
+
+```bash
+sudo apt purge \
+linux-image-unsigned-7.0.0-30-generic \
+linux-main-modules-zfs-7.0.0-30-generic \
+linux-modules-7.0.0-30-generic \
+linux-tools-7.0.0-30 \
+linux-tools-7.0.0-30-generic
+```
+
+### 28. Limpar dependências desnecessárias
+
+```bash
+sudo apt autoremove -y
+```
+
+### 29. Confirmar que somente o kernel atual está no `/boot`
+
+```bash
+ls -lah /boot | grep -E 'vmlinuz|initrd'
+```
+
+### 30. Gerar a configuração final do GRUB
+
+```bash
+sudo update-grub
+```
+
+### 31. Verificar as entradas do menu
+
+```bash
+sudo grep -E "^(menuentry|submenu)" /boot/grub/grub.cfg
+
+# Resultado esperado:
+# menuentry 'Ubuntu' ...
+# menuentry 'Windows Boot Manager (on /dev/nvme0n1p1)' ...
+```
+
+### 32. Confirmar remoção do "Advanced options"
+
+```bash
+sudo grep -F "Advanced options for Ubuntu" /boot/grub/grub.cfg
+# (Não deve retornar nada)
+```
+
+### 33. Confirmar remoção do Recovery Mode
+
+```bash
+sudo grep -F "recovery mode" /boot/grub/grub.cfg
+# (Não deve retornar nada)
+```
+
+### 34. Confirmar remoção do Memtest
+
+```bash
+sudo grep -i "memory test" /boot/grub/grub.cfg
+# (Não deve retornar nada)
+```
+
+### 35. Confirmar remoção do UEFI Firmware Settings
+
+```bash
+sudo grep -F "UEFI Firmware Settings" /boot/grub/grub.cfg
+# (Não deve retornar nada)
+```
+
+### 36. Confirmar novamente a entrada do Windows
+
+```bash
+sudo grep -i "Windows Boot Manager" /boot/grub/grub.cfg
+```
+
+### 37. Confirmar ativação do Tema Vimix
+
+```bash
+grep -F 'GRUB_THEME="/usr/share/grub/themes/vimix/theme.txt"' /etc/default/grub
+```
+
+### 38. Resultado Final Esperado
+
+O menu do GRUB deverá apresentar somente:
+* **Ubuntu**
+* **Windows Boot Manager**
+
+Sem entradas para *Advanced options*, *Recovery Mode*, *Memtest86+* ou *UEFI Firmware Settings*.
+
+### 39. Reiniciar o sistema
+> ⚠️ **Executar somente depois de todas as verificações acima.**
+
+```bash
+sudo reboot
+```
+
