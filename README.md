@@ -10,12 +10,12 @@ Toda a instrução de instalação e configuração foi refatorada, expandida e 
 
 ```text
 guia-linux/
-├── README.md
-├── .gitignore
 └── guias/
     ├── arch.md
     ├── debian.md
     └── fedora.md
+├── .gitignore
+├── README.md
 ```
 
 ---
